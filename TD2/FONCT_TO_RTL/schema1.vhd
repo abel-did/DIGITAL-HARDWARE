@@ -35,8 +35,3 @@ architecture rtl of reg_entity is
             end if;
     end process;
 end architecture;
-    
-                
-
-
-
