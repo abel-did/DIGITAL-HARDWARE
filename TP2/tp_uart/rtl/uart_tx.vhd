@@ -12,8 +12,7 @@ entity uart_tx is
   generic (
     f_clk  : real     := 100.0E6;
     f_baud : real     := 9600.0;
-    N      : positive := 8;
-    x 	   : positive := f_clk / f_baud
+    N      : positive := 8
   );
   port (
     clk    : in  std_logic;
@@ -26,11 +25,16 @@ entity uart_tx is
 end entity;
 --------------------------------------------------------------------------
 architecture rtl of uart_tx is
+	constant x 	: positive := integer(f_clk / f_baud);
 	signal reg	: std_logic_vector(N-1 downto 0);
 	signal ctr_tempo: natural range 0 to x-1;
 	signal end_tempo: std_logic;
 	signal ctr_data : unsigned(N-1 downto 0);
 	signal end_data : std_logic;
+	signal cmd_reg  : std_logic_vector(1 downto 0);
+	signal cmd_tempo : std_logic;
+	signal cmd_ctr : std_logic_vector(1 downto 0);
+	signal cmd_tx : std_logic_vector(1 downto 0); 
 
 	type state is (idle, start_bit, data_bit, stop_bit);
 	signal current_state	: state;
@@ -53,6 +57,7 @@ begin
 				when "00" =>   reg <= reg(N-1) & reg(0 downto N-2);
 				when "01" =>   reg <= data;
 				when others => reg <= reg;
+			end case;
 		end if;
 	end process;
 
@@ -70,6 +75,7 @@ begin
 			case cmd_tempo is 
 				when '0' => 	ctr_tempo <= 0;
 				when others =>	ctr_tempo <= ctr_tempo + 1;
+			end case;
 		end if;
 	end process;	
 
@@ -83,12 +89,13 @@ begin
 	process(clk, resetn) is 
 	begin
 		if resetn = '0' then
-			ctr_data <= 0;
+			ctr_data <= (others => '0');
 		elsif rising_edge(clk) then
 			case cmd_ctr is 
 				when "01" =>	ctr_data <= ctr_data + 1;
 				when "00" => 	ctr_data <= (others => '0');
 				when others =>	ctr_data <= ctr_data;
+			end case;
 		end if;
 	end process;
 
@@ -99,9 +106,10 @@ begin
 			tx <= '0';
 		elsif rising_edge(clk) then 
 			case cmd_tx is 
-				when "00" => 	tx <= 0;
-				when "01" => 	tx <= 1;
+				when "00" => 	tx <= '0';
+				when "01" => 	tx <= '1';
 				when others =>	tx <= reg(0);
+			end case;
 		end if;
 	end process;
 
@@ -157,7 +165,7 @@ begin
 				cmd_tempo <= '1'; 	-- Incrementation
 			end if;
 
-			ready   <= '0'	 		-- Not ready
+			ready   <= '0'	; 		-- Not ready
 --------------------------------------------------------------------------			
 			when data_bit =>
 				if end_data = '1' and end_tempo = '1' then
@@ -215,6 +223,6 @@ begin
 			--ready
 			ready   <= '0';					-- Not ready
 --------------------------------------------------------------------------
-
+		end case;
 	end process;
 end architecture;
