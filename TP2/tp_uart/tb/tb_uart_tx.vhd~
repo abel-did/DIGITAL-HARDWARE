@@ -26,19 +26,7 @@ begin
   
   stimuli : process is
   begin
-    
-	resetn <= '0';
-	data   <= "11110001"; 
-	start  <= '0';
-
-	wait for per;
-
-	resetn <= '1';
-	start  <= '1';
-
-
-
-
+    -- a completer
     wait;
   end process;
   
