@@ -54,7 +54,7 @@ begin
 			reg <= (others => '0');
 		elsif rising_edge(clk) then
 			case cmd_reg is 
-				when "00" =>   reg <= '0' & reg(N-2 downto 0);
+				when "00" =>   reg <= '0' & reg(N-1 downto 1);
 				when "01" =>   reg <= data;
 				when others => reg <= reg;
 			end case;
