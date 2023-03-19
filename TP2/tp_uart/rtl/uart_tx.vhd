@@ -25,20 +25,20 @@ entity uart_tx is
 end entity;
 --------------------------------------------------------------------------
 architecture rtl of uart_tx is
-	constant x 	: positive := integer(f_clk / f_baud);
-	signal reg	: std_logic_vector(N-1 downto 0);
-	signal ctr_tempo: natural range 0 to x-1;
-	signal end_tempo: std_logic;
-	signal ctr_data : unsigned(N-1 downto 0);
-	signal end_data : std_logic;
-	signal cmd_reg  : std_logic_vector(1 downto 0);
-	signal cmd_tempo : std_logic;
-	signal cmd_ctr : std_logic_vector(1 downto 0);
-	signal cmd_tx : std_logic_vector(1 downto 0); 
+	constant x 			: positive := integer(f_clk / f_baud);
+	signal reg			: std_logic_vector(N-1 downto 0);
+	signal ctr_tempo	: natural range 0 to x-1;
+	signal end_tempo	: std_logic;
+	signal ctr_data 	: unsigned(N-1 downto 0);
+	signal end_data 	: std_logic;
+	signal cmd_reg  	: std_logic_vector(1 downto 0);
+	signal cmd_tempo 	: std_logic;
+	signal cmd_ctr 		: std_logic_vector(1 downto 0);
+	signal cmd_tx 		: std_logic_vector(1 downto 0); 
 
 	type state is (idle, start_bit, data_bit, stop_bit);
 	signal current_state	: state;
-	signal next_state	: state;
+	signal next_state		: state;
 begin
 --------------------------------------------------------------------------
 -- Opertive Part							--
