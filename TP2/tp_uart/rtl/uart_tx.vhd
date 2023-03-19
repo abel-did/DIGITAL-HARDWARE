@@ -25,20 +25,20 @@ entity uart_tx is
 end entity;
 --------------------------------------------------------------------------
 architecture rtl of uart_tx is
-	constant x 			: positive := integer(f_clk / f_baud);
-	signal reg			: std_logic_vector(N-1 downto 0);
-	signal ctr_tempo	: natural range 0 to x-1;
-	signal end_tempo	: std_logic;
-	signal ctr_data 	: unsigned(N-1 downto 0);
-	signal end_data 	: std_logic;
-	signal cmd_reg  	: std_logic_vector(1 downto 0);
-	signal cmd_tempo 	: std_logic;
-	signal cmd_ctr 		: std_logic_vector(1 downto 0);
-	signal cmd_tx 		: std_logic_vector(1 downto 0); 
+	constant x 	: positive := integer(f_clk / f_baud);
+	signal reg	: std_logic_vector(N-1 downto 0);
+	signal ctr_tempo: natural range 0 to x-1;
+	signal end_tempo: std_logic;
+	signal ctr_data : unsigned(N-1 downto 0);
+	signal end_data : std_logic;
+	signal cmd_reg  : std_logic_vector(1 downto 0);
+	signal cmd_tempo : std_logic;
+	signal cmd_ctr : std_logic_vector(1 downto 0);
+	signal cmd_tx : std_logic_vector(1 downto 0); 
 
 	type state is (idle, start_bit, data_bit, stop_bit);
 	signal current_state	: state;
-	signal next_state		: state;
+	signal next_state	: state;
 begin
 --------------------------------------------------------------------------
 -- Opertive Part							--
@@ -54,7 +54,7 @@ begin
 			reg <= (others => '0');
 		elsif rising_edge(clk) then
 			case cmd_reg is 
-				when "00" =>   reg <= reg(N-1) & reg(0 downto N-2);
+				when "00" =>   reg <= '0' & reg(N-2 downto 0);
 				when "01" =>   reg <= data;
 				when others => reg <= reg;
 			end case;
@@ -178,7 +178,7 @@ begin
 				cmd_reg <= "10";	 		-- Memorisation
 			end if;
 			--cmd tx
-			cmd_tx  <= "11";         			-- Reg(0)
+			cmd_tx  <= "10";         			-- Reg(0)
 			--cmd ctr 
 			if end_tempo = '1' and end_data = '0' then
 				cmd_ctr <= "01";	 		-- Incrementation
