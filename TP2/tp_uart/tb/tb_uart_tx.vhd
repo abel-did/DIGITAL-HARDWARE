@@ -36,6 +36,9 @@ begin
 	resetn <= '1';
 	start  <= '1';
 
+	wait for per;
+	start  <= '0'; 
+
 
 
 
