@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------
--- Author : Abel DIDOUH	                						        --
--- Unit Name: DIGITAL HARDWARE						                    --
--- Date : 18 / 03 /2023							                        --
+-- Author : Abel DIDOUH	                				--
+-- Unit Name: DIGITAL HARDWARE						--
+-- Date : 18 / 03 /2023							--
 --------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -46,9 +46,9 @@ begin
 --------------------------------------------------------------------------
 	
 	-- REG Part --
-	-- Chargement parallele
-	-- Decalage a droite avec 0 en MSB
-	-- Memorisation
+	-- Parallel loading
+	-- Right shift with 0 in MSB
+	-- Memorization
 	process(clk, resetn) is 
 	begin
 		if resetn = '0' then
@@ -63,7 +63,7 @@ begin
 	end process;
 
 	-- CTR TEMPO Part --
-	-- Mise a 0...0
+	-- Set to 0...0
 	-- Incrementation
 	end_tempo <= '1' when ctr_tempo >= (x-1) else
 		     '0';
@@ -81,9 +81,9 @@ begin
 	end process;	
 
 	-- CTR DATA Part --
-	-- Mise a 0...0
+	-- Set to 0...0
 	-- Incrementation
-	-- Memorisation
+	-- Memorization
 	end_data <= '1' when ctr_data >= (N-1) else
 		    '0';
 
@@ -132,10 +132,10 @@ begin
 	begin
 		next_state <= current_state;
 		
-		cmd_reg <= "10";	-- Memorisation
-		cmd_tx  <= "01";	-- Mise a 1
-		cmd_ctr <= "00";	-- Mise a 0
-		cmd_tempo <= '0';	-- Mise a 0
+		cmd_reg <= "10";	-- Memorization
+		cmd_tx  <= "01";	-- Set to 1
+		cmd_ctr <= "00";	-- Set to 0
+		cmd_tempo <= '0';	-- Set to 0
 		ready   <= '0';		-- Not ready
 
 		case current_state is
@@ -145,10 +145,10 @@ begin
 					next_state <= start_bit;
 			end if;
 			
-			cmd_reg <= "01";	 -- Chargement parallele
-			cmd_tx  <= "01";     -- Mise a 1
-			cmd_ctr <= "00";	 -- Mise a 0
-			cmd_tempo <= '0';	 -- Mise a 0
+			cmd_reg <= "01";	 -- Parallel loading
+			cmd_tx  <= "01";     	 -- Set to 1
+			cmd_ctr <= "00";	 -- Set to 0
+			cmd_tempo <= '0';	 -- Set to 0
 			ready   <= '1';		 -- Ready
 --------------------------------------------------------------------------
 			when start_bit =>
@@ -156,12 +156,12 @@ begin
 					next_state <= data_bit;
 				end if;
 			
-			cmd_reg <= "10";	 	-- Memorisation
-			cmd_tx  <= "00";	 	-- Mise a 0
-			cmd_ctr <= "10";	 	-- Memorisation
+			cmd_reg <= "10";	 	-- Memorization
+			cmd_tx  <= "00";	 	-- Set to 0
+			cmd_ctr <= "10";	 	-- Memorization
 			
 			if end_tempo = '1' then
-				cmd_tempo <= '0'; 	-- Mise a 0
+				cmd_tempo <= '0'; 	-- Set to 0
 			else
 				cmd_tempo <= '1'; 	-- Incrementation
 			end if;
@@ -174,9 +174,9 @@ begin
 				end if;
 			--cmd reg
 			if end_tempo = '1' then
-				cmd_reg <= "00";	 		-- Decalage a droite
+				cmd_reg <= "00";	 		-- Shift to the right
 			else	
-				cmd_reg <= "10";	 		-- Memorisation
+				cmd_reg <= "10";	 		-- Memorization
 			end if;
 			--cmd tx
 			cmd_tx  <= "10";         			-- Reg(0)
@@ -184,14 +184,14 @@ begin
 			if end_tempo = '1' and end_data = '0' then
 				cmd_ctr <= "01";	 		-- Incrementation
 			elsif end_tempo = '1' and end_data = '1' then
-				cmd_ctr <= "00";	 		-- Mise a 0
+				cmd_ctr <= "00";	 		-- Set to 0
 			else
-				cmd_ctr <= "10";	 		-- Memorisation
+				cmd_ctr <= "10";	 		-- Memorization
 			end if;
 
 			--ctr_tempo
 			if end_tempo = '1' then
-				cmd_tempo <= '0';	 		-- Mise a 0
+				cmd_tempo <= '0';	 		-- Set to 0
 			else 
 				cmd_tempo <= '1';			-- Incrementation
 			end if;
@@ -208,18 +208,18 @@ begin
 
 			--cmd_reg
 			if start = '1' then
-				cmd_reg <= "01";			-- Chargement parallele
+				cmd_reg <= "01";			-- Parallel loading
 			else
-				cmd_reg <= "10";			-- Memorisation
+				cmd_reg <= "10";			-- Memorization
 			end if;
 
-			cmd_tx  <= "01";				-- Mise a 1
-			cmd_ctr <= "00";				-- Mise a 0
+			cmd_tx  <= "01";				-- Set to 1
+			cmd_ctr <= "00";				-- Set to 0
 			--ctr_tempo
 			if end_tempo = '1' then
-				cmd_tempo <= '0';			-- Mise a 0
+				cmd_tempo <= '0';			-- Set to 0
 			else
-				cmd_tempo <= '1';			-- Mise a 0
+				cmd_tempo <= '1';			-- Set to 0
 			end if;
 			--ready
 			ready   <= '0';					-- Not ready
