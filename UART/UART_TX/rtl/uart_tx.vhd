@@ -1,7 +1,8 @@
 --------------------------------------------------------------------------
--- Author : Abel DIDOUH	                				--
--- Unit Name: DIGITAL HARDWARE						--
--- Date : 18 / 03 /2023							--
+-- Author   :   Abel DIDOUH                                             --
+-- Date     :   24 / 03 / 2023                                          --
+-- Project  :   UART                                                    --
+-- Description : UART_TX                                                --
 --------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
