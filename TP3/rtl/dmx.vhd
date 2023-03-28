@@ -17,7 +17,7 @@ entity dmx is
         clk    : in  std_logic;
         resetn : in  std_logic;
         btnu   : in  std_logic;
-	    btnc   : in  std_logic;
+	btnc   : in  std_logic;
         rx     : in  std_logic;
         tx     : out std_logic;
         set1   : out std_logic;
@@ -27,12 +27,12 @@ end entity;
 --------------------------------------------------------------------------
 architecture rtl of dmx is
     
-    constant T1         : positive := integer(22.0*T_bit);
-    constant T2		    : positive := integer(22.0*T_bit);
+    constant T1         : real := real(22.0*T_bit);
+    constant T2		: real := real(22.0*T_bit);
     constant X1         : positive := integer(ceil( f_clk * real(T1) ));    --Arrondi sup 
     constant X2         : positive := integer(ceil( f_clk * real(T2) ));    --Arrondi sup
-    constant f_baud     : positive := integer(1.0/T_bit);
-    constant x 		    : positive := integer(f_clk/real(f_baud));
+    constant f_baud     : real := real(1.0/T_bit);
+    constant x 		: positive := integer(f_clk/real(f_baud));
     
     signal ctr_tempo    : natural range 0 to x-1;
     signal cmd_tempo    : std_logic;
