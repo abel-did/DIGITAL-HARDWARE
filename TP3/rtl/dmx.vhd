@@ -17,6 +17,7 @@ entity dmx is
         clk    : in  std_logic;
         resetn : in  std_logic;
         btnu   : in  std_logic;
+	btnc   : in  std_logic;
         rx     : in  std_logic;
         tx     : out std_logic;
         set1   : out std_logic;
@@ -25,11 +26,13 @@ entity dmx is
 end entity;
 --------------------------------------------------------------------------
 architecture rtl of dmx is
-    constant X1         : positive := integer(ceil(f_clk * T1));    --Arrondi sup 
-    constant X2         : positive := integer(ceil(f_clk * T2));    --Arrondi sup
-    constant T1         : positive := integer(22 * T_bit);
-    constant T2         : positive := integer(2  * T_bit);
-    constant f_baud     : positive := integer(1  / T_bit);
+    
+    constant T1         : positive := integer(22.0*T_bit);
+    constant T2		: positive := integer(22.0*T_bit);
+    constant X1         : positive := integer(ceil( f_clk * real(T1) ));    --Arrondi sup 
+    constant X2         : positive := integer(ceil( f_clk * real(T2) ));    --Arrondi sup
+    constant f_baud     : positive := integer(1.0/T_bit);
+    constant x 		: positive := integer(f_clk/real(f_baud));
     
     signal ctr_tempo    : natural range 0 to x-1;
     signal cmd_tempo    : std_logic;
@@ -43,6 +46,8 @@ architecture rtl of dmx is
     signal cmd_uart     : std_logic;
     signal tx_uart      : std_logic;
     signal cmd_tx       : std_logic_vector(1 downto 0);
+    signal start_uart	: std_logic;
+    signal ready_tx     : std_logic;
 
     type state is (idle, break_state, mark, start0, start1, data0, data1);
     signal current_state    : state;
@@ -55,7 +60,7 @@ begin
     rom_light : entity work.rom_light
     port map (
         clk         =>  clk,
-        address     =>  srt_ctr_data,
+        address     =>  srt_ctr_addr,
         data        =>  data
     );
 
@@ -77,9 +82,9 @@ begin
                     
     tx <=   tx_uart when cmd_tx = "10" else
             '1'     when cmd_tx = "01" else
-            (others => '0');
+            '0';
 
-    resetn  <= not btnc;
+    --resetn  <= not btnc;
 
     set1 <= '1';
 
@@ -94,7 +99,7 @@ begin
     process(clk,resetn) is
     begin
             if resetn = '0' then
-                    ctr_tempo <= '0';
+                    ctr_tempo <= 0;
             elsif rising_edge(clk) then
                     case cmd_tempo is
                             when '1'    =>  ctr_tempo <= ctr_tempo + 1;         -- Incrementation      
@@ -106,7 +111,7 @@ begin
     -- CTR ADDR Part --
 	-- Incrementation
 	-- Memorisation
-    end_channel <= '1' when srt_ctr_addr = '0' else
+    end_channel <= '1' when unsigned(srt_ctr_addr) = 0 else
                    '0';
 
 	process(clk, resetn) is 
@@ -115,8 +120,8 @@ begin
 			srt_ctr_addr <= (others => '0');
 		elsif rising_edge(clk) then
 			case cmd_addr is 
-				when '1'    =>  srt_ctr_addr <= srt_ctr_addr + 1;               -- Incrementation
-                when others =>  srt_ctr_addr <= srt_ctr_addr;                   -- Memorisation
+				when '1'    =>  srt_ctr_addr <= std_logic_vector(unsigned(srt_ctr_addr) + 1);               	-- Incrementation
+                		when others =>  srt_ctr_addr <= srt_ctr_addr;                   				-- Memorisation
 			end case;
 		end if;
 	end process;
@@ -181,7 +186,7 @@ process(current_state, btnu, end_T1, end_T2, ready_tx, end_channel) is
 
 --------------------------------------------------------------------------
             when mark => 
-                if end_T2 '1' then
+                if end_T2 = '1' then
                     next_state <= start0;
                 end if;
                 
@@ -209,7 +214,7 @@ process(current_state, btnu, end_T1, end_T2, ready_tx, end_channel) is
                 start_uart      <= '1';
                 cmd_addr        <= '0';
                 cmd_tempo       <= '0';
-                cmd_data        <= '0';
+                cmd_uart        <= '0';
 --------------------------------------------------------------------------
             when start1 =>
                 if ready_tx = '1' then 
@@ -221,7 +226,7 @@ process(current_state, btnu, end_T1, end_T2, ready_tx, end_channel) is
                 start_uart      <= '0';
                 cmd_addr        <= '0';
                 cmd_tempo       <= '0';
-                cmd_data        <= '1';
+                cmd_uart        <= '1';
 
 --------------------------------------------------------------------------
             when data0 =>
@@ -240,13 +245,13 @@ process(current_state, btnu, end_T1, end_T2, ready_tx, end_channel) is
                 end if;
 
                 cmd_tempo       <= '0';
-                cmd_data        <= '1';
+                cmd_uart        <= '1';
             
 --------------------------------------------------------------------------
             when data1 =>
                 if  ready_tx = '1'      and     end_channel = '0'   then
                     next_state <= data0; 
-                else if ready_tx = '1'  and     end_channel = '1'   then
+                elsif ready_tx = '1'  and     end_channel = '1'   then
                     next_state <= break_state;
                 end if;
 
@@ -255,7 +260,7 @@ process(current_state, btnu, end_T1, end_T2, ready_tx, end_channel) is
                 start_uart      <= '0';
                 cmd_addr        <= '0';
                 cmd_tempo       <= '0';
-                cmd_data        <= '1';
+                cmd_uart        <= '1';
                 
         end case;
     end process;
