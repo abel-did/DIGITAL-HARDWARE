@@ -11,14 +11,14 @@ use ieee.math_real.all;
 entity dmx is
     generic(
         f_clk  : real     := 100.0E6; 
-        T_bit  : real     := 4.0E-6
+        T_bit  : real     := 50.0E-9
     );
     port(
         clk    : in  std_logic;
-        resetn : in  std_logic;
+        --resetn : in  std_logic;
         btnu   : in  std_logic;
 	btnc   : in  std_logic;
-        rx     : in  std_logic;
+	rx     : in  std_logic;
         tx     : out std_logic;
         set1   : out std_logic;
         ready  : out std_logic
@@ -28,13 +28,14 @@ end entity;
 architecture rtl of dmx is
     
     constant T1         : real := real(22.0*T_bit);
-    constant T2		: real := real(22.0*T_bit);
+    constant T2		: real := real(2.0*T_bit);
     constant X1         : positive := integer(ceil( f_clk * real(T1) ));    --Arrondi sup 
     constant X2         : positive := integer(ceil( f_clk * real(T2) ));    --Arrondi sup
     constant f_baud     : real := real(1.0/T_bit);
     constant x 		: positive := integer(f_clk/real(f_baud));
+    constant N          : positive := 8;
     
-    signal ctr_tempo    : natural range 0 to x-1;
+    signal ctr_tempo    : natural range 0 to X1-1;
     signal cmd_tempo    : std_logic;
     signal end_T1       : std_logic;
     signal end_T2       : std_logic;
@@ -48,6 +49,7 @@ architecture rtl of dmx is
     signal cmd_tx       : std_logic_vector(1 downto 0);
     signal start_uart	: std_logic;
     signal ready_tx     : std_logic;
+    signal resetn       : std_logic;
 
     type state is (idle, break_state, mark, start0, start1, data0, data1);
     signal current_state    : state;
@@ -65,6 +67,13 @@ begin
     );
 
     uart_tx : entity work.uart_tx
+    generic map
+(
+    f_clk => f_clk,
+    f_baud => f_baud,
+    N  => N
+  )
+
     port map (
         clk         =>  clk,
         resetn      =>  resetn,
@@ -84,7 +93,7 @@ begin
             '1'     when cmd_tx = "01" else
             '0';
 
-    --resetn  <= not btnc;
+    resetn  <= not btnc;
 
     set1 <= '1';
 
