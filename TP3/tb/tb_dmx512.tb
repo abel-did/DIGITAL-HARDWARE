@@ -1,0 +1,57 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.math_real.all;
+
+entity tb_dmx512 is
+  
+end entity;
+
+architecture testbench of tb_dmx512 is
+  constant f_clk  : real     := 100.0E6;
+  constant T_bit  : real     := 50.0E-9;
+  
+  constant hp     : time     := 1.0/(2.0*f_clk) * 1 sec;
+  constant per    : time     := 2*hp;
+  
+  signal clk    : std_logic:= '0';
+  signal resetn : std_logic;
+  signal btnu   : std_logic;
+  signal btnc   : std_logic;
+  signal rx     : std_logic;
+  signal tx     : std_logic;
+  signal set1   : std_logic;
+  signal ready  : std_logic;
+	
+begin
+  clk <= not clk after hp;
+  
+  stimuli : process is
+  begin
+        btnu <= '0';
+	btnc	<= '1';
+	wait for per;
+
+	btnc	<= '0';
+	btnu 	<= '1';
+
+	
+
+    wait;
+  end process;
+  
+  dut : entity work.dmx
+  generic map (
+    f_clk  => f_clk ,
+    T_bit  => T_bit    
+  )
+  port map (
+    clk    => clk   ,
+    btnu   => btnu, 
+    btnc   => btnc,
+    rx     => rx,
+    tx     => tx,
+    set1   => set1,
+    ready  => ready
+  );
+end architecture;
