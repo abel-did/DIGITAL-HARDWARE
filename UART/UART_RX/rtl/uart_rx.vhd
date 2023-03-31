@@ -19,6 +19,7 @@ entity uart_rx is
         clk     : in std_logic;
         resetn  : in std_logic;
         data_out: out std_logic_vector(N-1 downto 0);
+        rx	: in std_logic;
         busy    : out std_logic
     );
 end entity;
@@ -31,24 +32,36 @@ architecture rtl of uart_rx is
     signal end_rx       : std_logic;
     signal ctr_tempo	: natural range 0 to x-1;
     signal ctr_data 	: unsigned(N-1 downto 0);
-    signal end_data     : std_logic_vector(1 dwonto 0);
+    signal end_data     : std_logic;
     signal rx_next      : std_logic;
+    signal cmd_rx 	: std_logic;
+    signal data_out_reg : std_logic_vector(N-1 downto 0);
+    signal cmd_tempo    : std_logic; 
+    signal cmd_ctr      : std_logic_vector(1 downto 0);
+    signal cmd_data     : std_logic_vector(1 downto 0);
+    signal fall_rx      : std_logic;
+
+    type state is (idle, first_bit, read_bit, stop_bit);
+    signal current_state	: state;
+    signal next_state		: state;
+
 begin
 --------------------------------------------------------------------------
--- Opertive Part							                            --
+-- Opertive Part							--
 --------------------------------------------------------------------------
 
+    data_out <= data_out_reg;
     --REG PART
     --Memorization
-    --Decalage --> Chargement en série
+    --Decalage --> Chargement en sÃ©rie
     process(clk, resetn)
     begin
         if resetn = '0' then
             data_out <= (others => '0');
         elsif rising_edge(clk) then
             case cmd_rx is
-                when '0'    => data_out <= data_out;
-                when others => data_out <= data_out(N-2 downto 0) & rx;
+                when '0'    => data_out_reg <= data_out_reg;
+                when others => data_out_reg <= data_out_reg(N-2 downto 0) & rx;
             end case;
         end if;
     end process;
@@ -69,7 +82,7 @@ begin
         elsif rising_edge(clk) then
             case cmd_tempo is
                 when '1'    =>  ctr_tempo <= ctr_tempo;
-                when others =>  ctr_tempo <= (others => '0');   
+                when others =>  ctr_tempo <= 0;   
             end case;
         end if;
     end process;
@@ -78,8 +91,8 @@ begin
 	-- Set to 0...0
 	-- Incrementation
 	-- Memorization
-	end_data <=     '1' when ctr_data >= (N-1) else
-		            '0';
+	end_data <=   '1' when ctr_data >= (N-1) else
+		      '0';
 
 	process(clk, resetn) is 
 	begin
@@ -95,7 +108,7 @@ begin
 	end process;
 
     --Detection Front descendant
-    fall_rx <=      rx_next and not rx;
+    fall_rx <= rx_next and not rx;
     
     process(clk, resetn)
     begin
@@ -107,7 +120,7 @@ begin
     end process;
             
 --------------------------------------------------------------------------
--- Control Part				                            				--
+-- Control Part				                            	--
 --------------------------------------------------------------------------
 
 	process(clk, resetn) is 
@@ -123,7 +136,7 @@ begin
 	begin
 		next_state <= current_state;
 		
-		cmd_reg   <= "10";	-- Memorisation
+		cmd_rx   <= '0';	-- Memorisation
 		cmd_data  <= "00";	-- Mise a 0
 		cmd_tempo <= '0';	-- Mise a 0
 		busy      <= '0';	-- Not busy
@@ -137,7 +150,7 @@ begin
 					next_state <= first_bit;
 				end if;
 			
-				cmd_reg   <= "10";	-- Memorisation
+				cmd_rx   <= '0';	-- Memorisation
 				cmd_data  <= "00";	-- Mise a 0
 				cmd_tempo <= '0';	-- Mise a 0
 				busy      <= '0';	-- Not busy
@@ -150,12 +163,13 @@ begin
 					next_state <= read_bit;
 				end if;
 					
-				cmd_reg   <= "10";			-- Memorisation
+				cmd_rx   <= '0';			-- Memorisation
 				cmd_data  <= "00";			-- Mise a 0
 				if end_tempo = '1' then
 					cmd_tempo <= '0';		-- Mise a 0
 				else	
 					cmd_tempo <= '1';		-- Incrementation
+				end if;
 				
 				busy      <= '1';			-- Busy
 --------------------------------------------------------------------------
@@ -167,10 +181,10 @@ begin
 				end if;
 			
 				--cmd reg
-				if end_tempo = '1' then
-					cmd_reg <= "00";	 		-- Decalage a droite
+				if end_rx = '1' then
+					cmd_rx <= '1';	 		-- Decalage a droite
 				else	
-					cmd_reg <= "10";	 		-- Memorisation
+					cmd_rx   <= '0';	-- Memorisation
 				end if;
 				--cmd data
 				if end_tempo = '1' and end_data = '0' then
@@ -199,7 +213,7 @@ begin
 					next_state <= idle;
 				end if;
 				
-				cmd_reg   <= "10";	-- Memorisation
+				cmd_rx   <= '0';	-- Memorisation
 				cmd_data  <= "00";	-- Mise a 0
 				cmd_tempo <= '0';	-- Mise a 0
 				busy      <= '0';	-- Not busy
