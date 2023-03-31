@@ -26,7 +26,7 @@ end entity;
 architecture rtl of uart_rx is
     
     --Signal PART
-    constant x 		    : positive := integer(f_clk / f_baud);
+    constant x 		: positive := integer(f_clk / f_baud);
     signal end_tempo    : std_logic;
     signal end_rx       : std_logic;
     signal ctr_tempo	: natural range 0 to x-1;
@@ -123,59 +123,74 @@ begin
 	begin
 		next_state <= current_state;
 		
-		cmd_reg <= "10";	-- Memorisation
-		cmd_tx  <= "01";	-- Mise a 1
-		cmd_ctr <= "00";	-- Mise a 0
+		cmd_reg   <= "10";	-- Memorisation
+		cmd_data  <= "00";	-- Mise a 0
 		cmd_tempo <= '0';	-- Mise a 0
-		ready   <= '0';		-- Not ready
+		busy      <= '0';	-- Not busy
 
 		case current_state is
+--------------------------------------------------------------------------
+-- Idle									--
 --------------------------------------------------------------------------
 			when idle =>
 				if fall_rx = '1' then
 					next_state <= first_bit;
 				end if;
 			
-			cmd_reg <= "01";	 -- Chargement parallele
-			cmd_tx  <= "01";         -- Mise a 1
-			cmd_ctr <= "00";	 -- Mise a 0
-			cmd_tempo <= '0';	 -- Mise a 0
-			ready   <= '1';		 -- Ready
+				cmd_reg   <= "10";	-- Memorisation
+				cmd_data  <= "00";	-- Mise a 0
+				cmd_tempo <= '0';	-- Mise a 0
+				busy      <= '0';	-- Not busy
 			
+--------------------------------------------------------------------------
+-- First bit								--
 --------------------------------------------------------------------------
 			when first_bit =>
 				if end_tempo = '1' and end_data = '0' then
 					next_state <= read_bit;
 				end if;
 					
-				cmd_reg <= "10";	 	-- Memorisation
-				cmd_tx  <= "00";	 	-- Mise a 0
-				cmd_ctr <= "10";	 	-- Memorisation
-					
+				cmd_reg   <= "10";			-- Memorisation
+				cmd_data  <= "00";			-- Mise a 0
 				if end_tempo = '1' then
-					cmd_tempo <= '0'; 	-- Mise a 0
-				else
-					cmd_tempo <= '1'; 	-- Incrementation
-				end if;
-
-				ready   <= '0'	; 		-- Not ready
+					cmd_tempo <= '0';		-- Mise a 0
+				else	
+					cmd_tempo <= '1';		-- Incrementation
+				
+				busy      <= '1';			-- Busy
+--------------------------------------------------------------------------
+-- Read bit								--
 --------------------------------------------------------------------------		
 			when read_bit =>
 				if end_tempo = '1' and end_data = '1' then
 					next_state <= stop_bit;
 				end if;
 			
-			cmd_reg <= "10";	 	-- Memorisation
-			cmd_tx  <= "00";	 	-- Mise a 0
-			cmd_ctr <= "10";	 	-- Memorisation
-			
-			if end_tempo = '1' then
-				cmd_tempo <= '0'; 	-- Mise a 0
-			else
-				cmd_tempo <= '1'; 	-- Incrementation
-			end if;
+				--cmd reg
+				if end_tempo = '1' then
+					cmd_reg <= "00";	 		-- Decalage a droite
+				else	
+					cmd_reg <= "10";	 		-- Memorisation
+				end if;
+				--cmd data
+				if end_tempo = '1' and end_data = '0' then
+					cmd_data <= "01";	 		-- Incrementation
+				elsif end_tempo = '1' and end_data = '1' then
+					cmd_data <= "00";	 		-- Mise a 0
+				else
+					cmd_data <= "10";	 		-- Memorisation
+				end if;
 
-			ready   <= '0'	; 		-- Not ready
+				--ctr_tempo
+				if end_tempo = '1' then
+					cmd_tempo <= '0';	 		-- Mise a 0
+				else 
+					cmd_tempo <= '1';			-- Incrementation
+				end if;
+				--ready
+				busy   <= '1';		 			-- Busy
+--------------------------------------------------------------------------
+-- Stop bit								--
 --------------------------------------------------------------------------			
 			when stop_bit =>
 				if fall_rx = '1' and end_tempo = '1' then
@@ -183,34 +198,12 @@ begin
 				elsif fall_rx = '0' and end_tempo = '1' then
 					next_state <= idle;
 				end if;
-			--cmd reg
-			if end_tempo = '1' then
-				cmd_reg <= "00";	 		-- Decalage a droite
-			else	
-				cmd_reg <= "10";	 		-- Memorisation
-			end if;
-			--cmd tx
-			cmd_tx  <= "10";         			-- Reg(0)
-			--cmd ctr 
-			if end_tempo = '1' and end_data = '0' then
-				cmd_ctr <= "01";	 		-- Incrementation
-			elsif end_tempo = '1' and end_data = '1' then
-				cmd_ctr <= "00";	 		-- Mise a 0
-			else
-				cmd_ctr <= "10";	 		-- Memorisation
-			end if;
-
-			--ctr_tempo
-			if end_tempo = '1' then
-				cmd_tempo <= '0';	 		-- Mise a 0
-			else 
-				cmd_tempo <= '1';			-- Incrementation
-			end if;
-			--ready
-			ready   <= '0';		 			-- Not Ready
-
+				
+				cmd_reg   <= "10";	-- Memorisation
+				cmd_data  <= "00";	-- Mise a 0
+				cmd_tempo <= '0';	-- Mise a 0
+				busy      <= '0';	-- Not busy
 --------------------------------------------------------------------------
-		end case;
-		
-
+		end case;	
+	end process;
 end architecture;
