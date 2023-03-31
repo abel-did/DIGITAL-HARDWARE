@@ -110,4 +110,107 @@ begin
 -- Control Part				                            				--
 --------------------------------------------------------------------------
 
+	process(clk, resetn) is 
+	begin 
+		if resetn = '0' then 
+			current_state <= idle;
+		elsif rising_edge(clk) then
+			current_state <= next_state;
+		end if;
+	end process;
+	
+	process(current_state, fall_rx, end_tempo, end_data) is 
+	begin
+		next_state <= current_state;
+		
+		cmd_reg <= "10";	-- Memorisation
+		cmd_tx  <= "01";	-- Mise a 1
+		cmd_ctr <= "00";	-- Mise a 0
+		cmd_tempo <= '0';	-- Mise a 0
+		ready   <= '0';		-- Not ready
+
+		case current_state is
+--------------------------------------------------------------------------
+			when idle =>
+				if fall_rx = '1' then
+					next_state <= first_bit;
+				end if;
+			
+			cmd_reg <= "01";	 -- Chargement parallele
+			cmd_tx  <= "01";         -- Mise a 1
+			cmd_ctr <= "00";	 -- Mise a 0
+			cmd_tempo <= '0';	 -- Mise a 0
+			ready   <= '1';		 -- Ready
+			
+--------------------------------------------------------------------------
+			when first_bit =>
+				if end_tempo = '1' and end_data = '0' then
+					next_state <= read_bit;
+				end if;
+					
+				cmd_reg <= "10";	 	-- Memorisation
+				cmd_tx  <= "00";	 	-- Mise a 0
+				cmd_ctr <= "10";	 	-- Memorisation
+					
+				if end_tempo = '1' then
+					cmd_tempo <= '0'; 	-- Mise a 0
+				else
+					cmd_tempo <= '1'; 	-- Incrementation
+				end if;
+
+				ready   <= '0'	; 		-- Not ready
+--------------------------------------------------------------------------		
+			when read_bit =>
+				if end_tempo = '1' and end_data = '1' then
+					next_state <= stop_bit;
+				end if;
+			
+			cmd_reg <= "10";	 	-- Memorisation
+			cmd_tx  <= "00";	 	-- Mise a 0
+			cmd_ctr <= "10";	 	-- Memorisation
+			
+			if end_tempo = '1' then
+				cmd_tempo <= '0'; 	-- Mise a 0
+			else
+				cmd_tempo <= '1'; 	-- Incrementation
+			end if;
+
+			ready   <= '0'	; 		-- Not ready
+--------------------------------------------------------------------------			
+			when stop_bit =>
+				if fall_rx = '1' and end_tempo = '1' then
+					next_state <= first_bit;
+				elsif fall_rx = '0' and end_tempo = '1' then
+					next_state <= idle;
+				end if;
+			--cmd reg
+			if end_tempo = '1' then
+				cmd_reg <= "00";	 		-- Decalage a droite
+			else	
+				cmd_reg <= "10";	 		-- Memorisation
+			end if;
+			--cmd tx
+			cmd_tx  <= "10";         			-- Reg(0)
+			--cmd ctr 
+			if end_tempo = '1' and end_data = '0' then
+				cmd_ctr <= "01";	 		-- Incrementation
+			elsif end_tempo = '1' and end_data = '1' then
+				cmd_ctr <= "00";	 		-- Mise a 0
+			else
+				cmd_ctr <= "10";	 		-- Memorisation
+			end if;
+
+			--ctr_tempo
+			if end_tempo = '1' then
+				cmd_tempo <= '0';	 		-- Mise a 0
+			else 
+				cmd_tempo <= '1';			-- Incrementation
+			end if;
+			--ready
+			ready   <= '0';		 			-- Not Ready
+
+--------------------------------------------------------------------------
+		end case;
+		
+
 end architecture;
