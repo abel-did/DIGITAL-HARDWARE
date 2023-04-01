@@ -57,7 +57,7 @@ begin
     process(clk, resetn)
     begin
         if resetn = '0' then
-            data_out <= (others => '0');
+            data_out_reg <= (others => '0');
         elsif rising_edge(clk) then
             case cmd_rx is
                 when '0'    => data_out_reg <= data_out_reg;
@@ -77,11 +77,10 @@ begin
     process(clk, resetn)
     begin
         if resetn = '0' then
-            end_tempo   <= '0';
-            end_rx      <= '0';
+            ctr_tempo <= 0
         elsif rising_edge(clk) then
             case cmd_tempo is
-                when '1'    =>  ctr_tempo <= ctr_tempo;
+                when '1'    =>  ctr_tempo <= ctr_tempo+1;
                 when others =>  ctr_tempo <= 0;   
             end case;
         end if;

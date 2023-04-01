@@ -11,7 +11,7 @@ use ieee.math_real.all;
 entity dmx is
     generic(
         f_clk  : real     := 100.0E6; 
-        T_bit  : real     := 50.0E-9
+        T_bit  : real     := 4.0E-6
     );
     port(
         clk    : in  std_logic;
