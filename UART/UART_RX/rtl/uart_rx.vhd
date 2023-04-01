@@ -33,14 +33,12 @@ architecture rtl of uart_rx is
     signal ctr_tempo	: natural range 0 to x-1;
     signal ctr_data 	: unsigned(N-1 downto 0);
     signal end_data     : std_logic;
-    signal rx_next      : std_logic;
+    
     signal cmd_rx 	: std_logic;
     signal data_out_reg : std_logic_vector(N-1 downto 0);
     signal cmd_tempo    : std_logic; 
-    signal cmd_ctr      : std_logic_vector(1 downto 0);
     signal cmd_data     : std_logic_vector(1 downto 0);
-    signal fall_rx      : std_logic;
-
+    
     type state is (idle, first_bit, read_bit, stop_bit);
     signal current_state	: state;
     signal next_state		: state;
@@ -53,7 +51,7 @@ begin
     data_out <= data_out_reg;
     --REG PART
     --Memorization
-    --Decalage --> Chargement en sÃ©rie
+    --Decalage --> Chargement en série
     process(clk, resetn)
     begin
         if resetn = '0' then
@@ -77,7 +75,7 @@ begin
     process(clk, resetn)
     begin
         if resetn = '0' then
-            ctr_tempo <= 0
+            ctr_tempo <= 0;
         elsif rising_edge(clk) then
             case cmd_tempo is
                 when '1'    =>  ctr_tempo <= ctr_tempo+1;
@@ -98,7 +96,7 @@ begin
 		if resetn = '0' then
 			ctr_data <= (others => '0');
 		elsif rising_edge(clk) then
-			case cmd_ctr is 
+			case cmd_data is 
 				when "01" =>	ctr_data <= ctr_data + 1;
 				when "00" => 	ctr_data <= (others => '0');
 				when others =>	ctr_data <= ctr_data;
@@ -106,18 +104,9 @@ begin
 		end if;
 	end process;
 
-    --Detection Front descendant
-    fall_rx <= rx_next and not rx;
+
     
-    process(clk, resetn)
-    begin
-        if resetn = '0' then
-            rx_next <= '0';
-        elsif rising_edge(clk) then
-            rx_next <= rx;
-        end if;
-    end process;
-            
+
 --------------------------------------------------------------------------
 -- Control Part				                            	--
 --------------------------------------------------------------------------
@@ -131,7 +120,7 @@ begin
 		end if;
 	end process;
 	
-	process(current_state, fall_rx, end_tempo, end_data) is 
+	process(current_state, end_tempo, end_data) is 
 	begin
 		next_state <= current_state;
 		
@@ -145,7 +134,7 @@ begin
 -- Idle									--
 --------------------------------------------------------------------------
 			when idle =>
-				if fall_rx = '1' then
+				if end_tempo = '0' then
 					next_state <= first_bit;
 				end if;
 			
@@ -183,7 +172,7 @@ begin
 				if end_rx = '1' then
 					cmd_rx <= '1';	 		-- Decalage a droite
 				else	
-					cmd_rx   <= '0';	-- Memorisation
+					cmd_rx   <= '0';		-- Memorisation
 				end if;
 				--cmd data
 				if end_tempo = '1' and end_data = '0' then
@@ -206,9 +195,9 @@ begin
 -- Stop bit								--
 --------------------------------------------------------------------------			
 			when stop_bit =>
-				if fall_rx = '1' and end_tempo = '1' then
+				if end_tempo = '0' and end_data = '0' then
 					next_state <= first_bit;
-				elsif fall_rx = '0' and end_tempo = '1' then
+				elsif end_tempo = '1' and end_data = '1' then
 					next_state <= idle;
 				end if;
 				
