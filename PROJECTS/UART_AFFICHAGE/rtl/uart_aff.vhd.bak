@@ -19,38 +19,38 @@ entity uart_aff is
     port(
         clk     : in std_logic;                             -- Horloge 
         btnc    : in std_logic;                             -- Init. asynchrone
-        tx      : out std_logic;                            -- DonnÃ©e UART transmise
+        tx      : out std_logic;                            -- Donnee UART transmise
         btnu    : in std_logic;                             -- Ordre pour une nouvelle transmission
         sw      : in std_logic_vector(N-1 downto 0);        -- Code ASCII a afficher
-        ready   : out std_logic                             -- SystÃ¨me pret
+        ready   : out std_logic                             -- Systeme pret
     );
 end entity;
 --------------------------------------------------------------------------
 architecture rtl of uart_aff is
     --Signal PART
-    constant x 		    : positive := integer(ceil(f_clk * T1));
+    constant x 		    	: positive := integer(ceil(f_clk * T1));
 
-    signal sortie_process_1 : std_logic;
-    signal sortie_process_2 : std_logic;
-    signal entree_combined_1 : std_logic;
-    signal sortie_process_3  : std_logic;
-    signal start             : std_logic;
+    signal sortie_process_1 	: std_logic;
+    signal sortie_process_2 	: std_logic;
+    signal entree_combined_1 	: std_logic;
+    signal sortie_process_3  	: std_logic;
+    signal start             	: std_logic;
 
-    signal end_tempo         : std_logic;
-    signal ctr_tempo	     : natural range 0 to x-1;
+    signal end_tempo         	: std_logic;
+    signal ctr_tempo	     	: natural range 0 to x-1;
 
-    signal addr              : std_logic_vector(3 downto 0);
-    signal end_message       : std_logic;
-    signal data              : std_logic_vector(N-1 downto 0);
-    signal sortie_mux_data   : std_logic_vector(N-1 downto 0);
+    signal addr              	: std_logic_vector(3 downto 0);
+    signal end_message       	: std_logic;
+    signal data              	: std_logic_vector(N-1 downto 0);
+    signal sortie_mux_data   	: std_logic_vector(N-1 downto 0);
 
-    signal start_uart        : std_logic;
-    signal ready_tx          : std_logic;
+    signal start_uart        	: std_logic;
+    signal ready_tx          	: std_logic;
 
-    signal cmd_tempo : std_logic;
-    signal cmd_addr  : std_logic;
+    signal cmd_tempo 		: std_logic;
+    signal cmd_addr  		: std_logic;
 
-    signal resetn 	     : std_logic;
+    signal resetn 	     	: std_logic;
 
     type state is (idle, wait_for_uart_busy, wait_for_uart_ready, wait_for_tempo);
     signal current_state	: state;
@@ -60,7 +60,7 @@ architecture rtl of uart_aff is
 
     begin
 --------------------------------------------------------------------------
--- Opertive Part							                            --
+-- Opertive Part							--
 --------------------------------------------------------------------------
 
     resetn <= not btnc;
@@ -167,7 +167,7 @@ architecture rtl of uart_aff is
     );
 
 --------------------------------------------------------------------------
--- Control Part				                            	            --
+-- Control Part				                            	--
 --------------------------------------------------------------------------
 
     process(clk, resetn) is 
@@ -191,37 +191,37 @@ architecture rtl of uart_aff is
         case current_state is
 
 --------------------------------------------------------------------------
--- Idle									                                --
+-- Idle									--
 --------------------------------------------------------------------------
 	    when idle =>
             if start = '1' and ready_tx = '1' then
                 next_state <= wait_for_uart_busy;
             end if;
         
-            start_uart <= '1';
-            cmd_addr   <= '0';  --Mem
-            ready      <= '1';
-            cmd_tempo  <= '0';  --Set to 0
+            start_uart 		<= '1';
+            cmd_addr   		<= '0';  --Mem
+            ready      		<= '1';
+            cmd_tempo  		<= '0';  --Set to 0
             
 --------------------------------------------------------------------------
--- Wait for uart busy								                                --
+-- Wait for uart busy							--
 --------------------------------------------------------------------------
             when wait_for_uart_busy =>
             if ready_tx = '0' then
                 next_state <= wait_for_uart_ready;
             end if;
             
-            start_uart <= '1';
+            start_uart 		<= '1';
             if ready_tx = '0' then
-                cmd_addr       <= '1';
+                cmd_addr       	<= '1';
             else
-                cmd_addr       <= '0';  --Mem
+                cmd_addr       	<= '0';  --Mem
             end if;
-            ready      <= '0';
-            cmd_tempo  <= '0';  --Set to 0
+            ready      		<= '0';
+            cmd_tempo  		<= '0';  --Set to 0
 
 --------------------------------------------------------------------------
--- Wait for uart ready							                        --
+-- Wait for uart ready							--
 --------------------------------------------------------------------------
             when wait_for_uart_ready =>
             if ready_tx = '1' and end_message = '0' then
@@ -230,25 +230,25 @@ architecture rtl of uart_aff is
                 next_state <= wait_for_tempo;
             end if;
 
-            start_uart <= '0';
-            cmd_addr       <= '0';  --Mem
-            ready      <= '0';
-            cmd_tempo  <= '0';  --Set to 0
+            start_uart 		<= '0';
+            cmd_addr       	<= '0';  --Mem
+            ready      		<= '0';
+            cmd_tempo  		<= '0';  --Set to 0
             
 --------------------------------------------------------------------------
--- Wait for uart tempo   						                        --
+-- Wait for uart tempo   			                        --
 --------------------------------------------------------------------------
             when wait_for_tempo =>
             if end_tempo = '1' then
                 next_state <= wait_for_uart_busy;
             end if;
-            start_uart <= '0';
-            cmd_addr       <= '0';  --Mem
-            ready      <= '0';
+            start_uart 		<= '0';
+            cmd_addr       	<= '0';  --Mem
+            ready      		<= '0';
             if end_tempo = '1' then
-                cmd_tempo  <= '0';  --Set to 0
+                cmd_tempo  	<= '0';  --Set to 0
             else
-                cmd_tempo  <= '1';  --Inc
+                cmd_tempo  	<= '1';  --Inc
             end if;           
 
         end case;

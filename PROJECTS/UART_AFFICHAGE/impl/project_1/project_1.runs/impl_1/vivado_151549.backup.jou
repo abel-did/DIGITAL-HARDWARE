@@ -1,0 +1,13 @@
+#-----------------------------------------------------------
+# Vivado v2022.1 (64-bit)
+# SW Build 3526262 on Mon Apr 18 15:47:01 MDT 2022
+# IP Build 3524634 on Mon Apr 18 20:55:01 MDT 2022
+# Start of session at: Mon Apr 17 16:21:49 2023
+# Process ID: 151549
+# Current directory: /user/didouha/homedir/E3/S2/P3/EL-3013/UART_AFF/impl/project_1/project_1.runs/impl_1
+# Command line: vivado -log uart_aff.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source uart_aff.tcl -notrace
+# Log file: /user/didouha/homedir/E3/S2/P3/EL-3013/UART_AFF/impl/project_1/project_1.runs/impl_1/uart_aff.vdi
+# Journal file: /user/didouha/homedir/E3/S2/P3/EL-3013/UART_AFF/impl/project_1/project_1.runs/impl_1/vivado.jou
+# Running On: pc3407i, OS: Linux, CPU Frequency: 996.484 MHz, CPU Physical cores: 8, Host memory: 16551 MB
+#-----------------------------------------------------------
+source uart_aff.tcl -notrace
