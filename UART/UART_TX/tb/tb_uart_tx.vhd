@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------
 -- Author : Abel DIDOUH	           					--
 -- Unit Name: DIGITAL HARDWARE	                                        --
--- Project : UART TX            					--
+-- Project : UART TX Testbench        					--
 -- Date : 18 / 03 /2023							--
 --------------------------------------------------------------------------
 library ieee;
