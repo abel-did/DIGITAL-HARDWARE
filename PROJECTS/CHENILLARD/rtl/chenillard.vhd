@@ -1,8 +1,8 @@
 --------------------------------------------------------------------------
 -- Author   :     Abel DIDOUH                                           --
 -- Date     :     01 / 04 / 2023                                        --
--- Project  :     chenillard                                             --
--- Description :  chenillard                                              --
+-- Project  :     chenillard                                            --
+-- Description :  chenillard                                            --
 --------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -11,14 +11,14 @@ use ieee.math_real.all;
 --------------------------------------------------------------------------
 entity chenillard is
   generic(   
-    f_clk      : real     := 100.0E6;   -- Frequence de fonctionnement
-    canal_leds : positive := 13;	-- Numero du 1er canal
-    T_c        : real     := 50.0E-9    -- Duree d'allumage d'un spot
+    f_clk      : real     := 100.0E6;   			-- Frequence de fonctionnement
+    canal_leds : positive := 13;					-- Numero du 1er canal
+    T_c        : real     := 50.0E-9    			-- Duree d'allumage d'un spot
   );
   port (
-    clk	     : in std_logic;		-- Horloge
-    resetn   : in std_logic;            -- Init asynchrone
-    addr_spot: out std_logic_vector(8 downto 0) -- Adresse sur 9 bits du spot a allumer
+    clk	     : in std_logic;						-- Horloge
+    resetn   : in std_logic;            			-- Init asynchrone
+    addr_spot: out std_logic_vector(8 downto 0) 	-- Adresse sur 9 bits du spot a allumer
   );
 end entity;
 --------------------------------------------------------------------------
@@ -79,9 +79,9 @@ begin
 		if end_Tc = '1' then
 		  ctr_L 		<= std_logic_vector(unsigned(ctr_L) + 1); 		--Incrementation
 		elsif (end_Tc = '1' and end_ctr_L = '1') then
-		  ctr_L 		<= (others => '0');					--Set to 0...0
+		  ctr_L 		<= (others => '0');								--Set to 0...0
 		else 
-		  ctr_L 		<= ctr_L;						--Mem
+		  ctr_L 		<= ctr_L;										--Mem
 		end if;
 	end if;
 	end process;
@@ -98,11 +98,11 @@ begin
 		ctr_C <= (others => '0');
 	elsif rising_edge(clk) then
 		if end_Tc = '1' and end_L = '1' then
-		  ctr_C 		<= std_logic_vector(unsigned(ctr_C) + 1); 		--Incrementation
+		  ctr_C 		<= std_logic_vector(unsigned(ctr_C) + 1); 			--Incrementation
 		elsif end_ctr_C = '1' and (end_Tc = '1' and end_L = '1') then
 		  ctr_C 		<= (others => '0');	
 		else 
-		  ctr_C			<= ctr_C;					--Memorisation 
+		  ctr_C			<= ctr_C;											--Memorisation 
 		end if;
 	end if;
 	end process;

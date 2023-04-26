@@ -12,16 +12,16 @@ use ieee.math_real.all;
 entity dmx_leds is
   generic(   
     f_clk      : real     := 100.0E6;   -- Frequence de fonctionnement
-    canal_leds : positive := 13;	-- Numero du 1er canal
+    canal_leds : positive := 13;	    -- Numero du 1er canal
     T_bit      : real     := 4.0E-6;    -- Duree d'un bit de la transmission UART
     T_c        : real     := 1.0
   );
   port (
-    clk	     : in std_logic;		-- Horloge
-    btnc     : in std_logic;		-- Init asynchrone
+    clk	     : in std_logic;		    -- Horloge
+    btnc     : in std_logic;		    -- Init asynchrone
     btnu     : in std_logic;            -- Demarage de la trame DMX
-    rx       : in std_logic;		-- Donnee UART recue (cable DMX)
-    tx 	     : out std_logic;		-- Donnee UART transmise (cable DMX)
+    rx       : in std_logic;		    -- Donnee UART recue (cable DMX)
+    tx 	     : out std_logic;		    -- Donnee UART transmise (cable DMX)
     set1     : out std_logic;           -- Signal a 1 (cable DMX)
     ready    : out std_logic            -- Systeme pret (en attente d'appui sur btnu)
   );
@@ -152,7 +152,7 @@ begin
       elsif rising_edge(clk) then
         case cmd_addr is 
           when '1'    =>  srt_ctr_addr <= std_logic_vector(unsigned(srt_ctr_addr) + 1);               	-- Incrementation
-          when others =>  srt_ctr_addr <= srt_ctr_addr;                   				-- Memorisation
+          when others =>  srt_ctr_addr <= srt_ctr_addr;                   				                -- Memorisation
         end case;
       end if;
     end process;

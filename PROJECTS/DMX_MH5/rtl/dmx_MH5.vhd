@@ -11,7 +11,7 @@ use ieee.math_real.all;
 --------------------------------------------------------------------------
 entity dmx_MH5 is
   generic(
-    canal_MH5  : positive := 100;
+    canal_MH5  : positive := 33;
     T_bit      : real     := 4.0E-6;    -- 4 us
     f_clk      : real     := 100.0E6    -- 100 MHz
   );
@@ -49,8 +49,8 @@ architecture rtl of dmx_MH5 is
   signal end_T1       : std_logic;
   signal end_T2       : std_logic;
   signal srt_ctr_addr : std_logic_vector(8 downto 0);
-  signal cmd_addr 	  : std_logic;
-  signal end_channel	: std_logic;
+  signal cmd_addr     : std_logic;
+  signal end_channel  : std_logic;
   signal data         : std_logic_vector(7 downto 0);
   signal data_uart    : std_logic_vector(7 downto 0);
   signal cmd_uart     : std_logic;
@@ -60,6 +60,7 @@ architecture rtl of dmx_MH5 is
   signal ready_tx     : std_logic;
   signal resetn       : std_logic;
 
+  signal addr_canal_mh5_temp : std_logic_vector(8 downto 0);
   signal addr_canal_mh5 : std_logic_vector(3 downto 0);
   signal data_mh5_b     : std_logic_vector(N-1 downto 0);
   signal data_mh5_a     : std_logic_vector(N-1 downto 0);
@@ -67,6 +68,7 @@ architecture rtl of dmx_MH5 is
   signal srt_DFF_1      : std_logic;
   signal srt_DFF_2      : std_logic;
   signal srt_DFF_3      : std_logic;
+  signal in_DFF_3	: std_logic;
   signal rise_btnd      : std_logic;
 
   type state is (idle, break_state, mark, start0, start1, data0, data1);
@@ -110,7 +112,7 @@ begin
     (
       f_clk   => f_clk,
       f_scan  => 100.0
-    );
+    )
     port map (
       clk           =>  clk,
       resetn        =>  resetn,
@@ -128,7 +130,7 @@ begin
 --------------------------------------------------------------------------
 -- Opertive Part                                                        --
 --------------------------------------------------------------------------
-    data      <=  data_mh5_b when (unsigned(addr) >= (canal_mh5-1) and (canal_mh5-1)+15 >= unsigned(addr)) else
+    data      <=  data_mh5_b when (unsigned(srt_ctr_addr) >= (canal_mh5-1) and (canal_mh5-1)+15 >= unsigned(srt_ctr_addr)) else
                   (others => '0');
                 
     data_uart <=  data when cmd_uart = '1' else
@@ -202,7 +204,8 @@ begin
     -- Memorisation
     end_channel <= '1' when unsigned(srt_ctr_addr) = 0 else
                    '0';
-    addr_canal_mh5 <= std_logic_vector(unsigned(srt_ctr_addr) - unsigned(canal_mh5 - 1));
+    addr_canal_mh5_temp <= std_logic_vector((signed(srt_ctr_addr)-(canal_mh5-1))); 
+    addr_canal_mh5 <= addr_canal_mh5_temp(3 downto 0);
 
     process(clk, resetn) is 
     begin
