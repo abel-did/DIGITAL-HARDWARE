@@ -1,3 +1,0 @@
-# TD Logique combinatoire
-
-![image]()
