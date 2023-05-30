@@ -51,15 +51,15 @@ begin
     data_out <= data_out_reg;
     --REG PART
     --Memorization
-    --Decalage --> Chargement en série
+    --Decalage --> Chargement en sÃ©rie
     process(clk, resetn)
     begin
         if resetn = '0' then
             data_out_reg <= (others => '0');
         elsif rising_edge(clk) then
             case cmd_rx is
-                when '0'    => data_out_reg <= data_out_reg;
-                when others => data_out_reg <= data_out_reg(N-2 downto 0) & rx;
+                when '0'    => data_out_reg <= data_out_reg(N-1 downto 0);
+                when others => data_out_reg <= data_out_reg(N-1 downto 1) & '1';
             end case;
         end if;
     end process;
