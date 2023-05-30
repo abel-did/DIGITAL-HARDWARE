@@ -14,10 +14,10 @@ This is an implementation of digital systems based on a material architecture. Y
 
 ### Skills required
 
-    Vivado
-    VHDL
-    Questasim
-    Basys 3
+- Vivado
+- VHDL
+- Questasim
+- Basys 3
 
 ## Projects : 
 - Chenillard
