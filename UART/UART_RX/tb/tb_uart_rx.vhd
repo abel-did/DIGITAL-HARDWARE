@@ -9,10 +9,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 --------------------------------------------------------------------------
-entity tb_uart_tx is 
+entity tb_uart_rx is 
 end entity;
 --------------------------------------------------------------------------
-architecture testbench of tb_uart_tx is
+architecture testbench of tb_uart_rx is
   constant f_clk  : real     := 100.0E6;
   constant f_baud : real     := 2.0E6;
   constant N      : positive := 8;
@@ -33,52 +33,51 @@ begin
 stimuli : process is
 begin
   resetn <= '0';
-  
-  --rx <= '1'; -- Bit 7
-  --wait for 1275 ns;
-  --resetn <= '1';
-  --rx <= '1'; -- Bit 6
-  --wait for 500 ns;
-  --rx <= '0'; -- Bit 5
-  --wait for 500 ns;
-  --rx <= '1'; -- Bit 4
-  --wait for 500 ns;
-  --rx <= '0'; -- Bit 3
-  --wait for 500 ns;
-  --rx <= '1'; -- Bit 2
-  --wait for 500 ns;
-  --rx <= '0'; -- Bit 1
-  --wait for 500 ns;
-  --rx <= '1'; -- Bit 0
-  --wait for 265 ns;
-
-		-- A 01000001
-  
   rx <= '1';
-  
   wait for 1000 ns;
   resetn <= '1';
-  rx <= '1'; -- Bit Repos
+
+  -- A 01000001
+
+  
   wait for 500 ns;
-  rx <= '1'; -- Bit Repos
-  wait for 500 ns;
-  rx <= '0'; -- Bit 7
-  wait for 500 ns;
-  rx <= '1'; -- Bit 6
-  wait for 500 ns;
-  rx <= '0'; -- Bit 5
-  wait for 500 ns;
-  rx <= '0'; -- Bit 4
-  wait for 500 ns;
-  rx <= '0'; -- Bit 3
-  wait for 500 ns;
-  rx <= '0'; -- Bit 2
+  rx <= '1'; -- Bit 0
   wait for 500 ns;
   rx <= '0'; -- Bit 1
   wait for 500 ns;
-  rx <= '1'; -- Bit 0
-  wait for 265 ns;
+  rx <= '0'; -- Bit 2
+  wait for 500 ns;
+  rx <= '0'; -- Bit 3
+  wait for 500 ns;
+  rx <= '0'; -- Bit 4
+  wait for 500 ns;
+  rx <= '0'; -- Bit 5
+  wait for 500 ns;
+  rx <= '1'; -- Bit 6
+  wait for 500 ns;
+  rx <= '0'; -- Bit 7
+  wait for 500 ns;
 
+  rx <= '1';
+
+  -- E 01000101
+  --wait for 1000 ns;
+  --rx <= '0'; 	-- BIT 7
+  --wait for 500 ns;
+  --rx <= '1';	-- BIT 6
+  --wait for 500 ns;
+  --rx <= '0';	-- BIT 5
+  --wait for 500 ns;
+  --rx <= '0';    -- BIT 4
+  --wait for 500 ns;
+  --rx <= '0';	-- BIT 3 
+  --wait for 500 ns;
+  --rx <= '1';	-- BIT 2
+  --wait for 500 ns;
+  --rx <= '0';	-- BIT 1
+  --wait for 500 ns;
+  --rx <= '1';	-- BIT 0
+  
 
   wait;
   end process;
