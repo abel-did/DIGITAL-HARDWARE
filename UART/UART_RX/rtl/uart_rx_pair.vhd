@@ -18,7 +18,7 @@ entity uart_rx is
         resetn  : in std_logic;
         data_out : out std_logic_vector(N-1 downto 0);
         rx       : in std_logic;
-        ready     : out std_logic
+        ready    : out std_logic
     );
 end uart_rx;
 --------------------------------------------------------------------------
@@ -32,26 +32,26 @@ architecture arch of uart_rx is
     signal cmd_tempo : std_logic;
     signal end_tempo : std_logic;	
     signal x_comp    : positive;
-    signal mux_x_comp : std_logic;
+    signal mux_x_comp: std_logic;
 
 	signal cmd_data : std_logic_vector(1 downto 0);
     signal ctr_data : unsigned (N-1 downto 0);
-    signal data: unsigned (N-1 downto 0);
+    signal data     : unsigned (N-1 downto 0);
     signal end_data : std_logic; 
-    signal LSB : std_logic;
+    signal LSB      : std_logic;
 
-    signal cmd_data_ok : std_logic_vector (1 downto 0);
-    signal data_ok : std_logic;
+    signal cmd_data_ok  : std_logic_vector (1 downto 0);
+    signal data_ok      : std_logic;
 
     type state is (idle, start_bit, data_bit, stop_bit);
     signal current_state    : state;
     signal next_state   	: state;
-    begin
+begin
 
 --------------------------------------------------------------------------
 -- Operative Part                                                       --
 --------------------------------------------------------------------------
-
+    data_out <= end_data;
     -- REG RX PART
     -- DECALAGE A DROITE RX MSB 
     process (resetn, clk) is
@@ -124,7 +124,6 @@ architecture arch of uart_rx is
 -- Control Part                                               --
 ----------------------------------------------------------------
 
-
 process(clk, resetn) is
 begin
 if resetn = '0' then
@@ -149,7 +148,7 @@ begin
     case current_state is
     
 -----------------------------------------------------------------
--- IDLE
+-- IDLE                                                        --
 -----------------------------------------------------------------
 when idle =>
 	if reg_rx(0) = '0' then
@@ -170,7 +169,7 @@ when idle =>
     ready 	    <= '1';
 
 -----------------------------------------------------------------
--- START BIT
+-- START BIT                                                   --
 -----------------------------------------------------------------
 when start_bit => 
     if (end_tempo = '1' and reg_rx(0) = '0') then
@@ -196,7 +195,7 @@ when start_bit =>
     ready 	<= '1';
 
 -----------------------------------------------------------------
--- DATA BIT
+-- DATA BIT                                                    --
 -----------------------------------------------------------------
 when data_bit =>
 	if (end_data = '1' and end_tempo = '1') then
@@ -222,7 +221,7 @@ when data_bit =>
 
 
 -----------------------------------------------------------------
--- STOP BIT
+-- STOP BIT                                                    --
 -----------------------------------------------------------------
 when stop_bit =>
 	if (end_tempo = '1') then
@@ -252,8 +251,3 @@ when stop_bit =>
 end case;
 end process;
 end arch;
-
-	
-
-
-
