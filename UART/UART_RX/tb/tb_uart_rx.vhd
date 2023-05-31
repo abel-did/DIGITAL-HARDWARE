@@ -21,11 +21,10 @@ architecture testbench of tb_uart_rx is
   
   signal clk    : std_logic:= '0';
   signal resetn : std_logic;
-  signal busy   : std_logic;
+  signal ready   : std_logic;
   signal rx     : std_logic;
   signal data_out : std_logic_vector(N-1 downto 0);
   
-	
 begin
   clk <= not clk after hp;
   
@@ -33,15 +32,15 @@ begin
 stimuli : process is
 begin
   resetn <= '0';
-  rx <= '1';
-  wait for 1000 ns;
+  rx <= '1';		-- Ligne repos
+  wait for 500 ns;
   resetn <= '1';
+  rx <= '0';
 
   -- A 01000001
 
-  
   wait for 500 ns;
-  rx <= '1'; -- Bit 0
+  rx <= '0'; -- Bit 0
   wait for 500 ns;
   rx <= '0'; -- Bit 1
   wait for 500 ns;
@@ -58,7 +57,7 @@ begin
   rx <= '0'; -- Bit 7
   wait for 500 ns;
 
-  rx <= '1';
+  
 
   -- E 01000101
   --wait for 1000 ns;
@@ -92,7 +91,7 @@ begin
     clk    => clk   ,
     resetn => resetn,
     data_out   => data_out  ,
-    busy  => busy ,
+    ready  => ready ,
     rx     => rx 
   );
 end architecture;
