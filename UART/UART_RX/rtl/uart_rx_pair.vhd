@@ -46,12 +46,12 @@ architecture arch of uart_rx is
     type state is (idle, start_bit, data_bit, stop_bit);
     signal current_state    : state;
     signal next_state   	: state;
-begin
+    begin
 
 --------------------------------------------------------------------------
 -- Operative Part                                                       --
 --------------------------------------------------------------------------
-    data_out <= end_data;
+
     -- REG RX PART
     -- DECALAGE A DROITE RX MSB 
     process (resetn, clk) is
@@ -124,6 +124,7 @@ begin
 -- Control Part                                               --
 ----------------------------------------------------------------
 
+
 process(clk, resetn) is
 begin
 if resetn = '0' then
@@ -148,7 +149,7 @@ begin
     case current_state is
     
 -----------------------------------------------------------------
--- IDLE                                                        --
+-- IDLE
 -----------------------------------------------------------------
 when idle =>
 	if reg_rx(0) = '0' then
@@ -169,7 +170,7 @@ when idle =>
     ready 	    <= '1';
 
 -----------------------------------------------------------------
--- START BIT                                                   --
+-- START BIT
 -----------------------------------------------------------------
 when start_bit => 
     if (end_tempo = '1' and reg_rx(0) = '0') then
@@ -195,7 +196,7 @@ when start_bit =>
     ready 	<= '1';
 
 -----------------------------------------------------------------
--- DATA BIT                                                    --
+-- DATA BIT
 -----------------------------------------------------------------
 when data_bit =>
 	if (end_data = '1' and end_tempo = '1') then
@@ -221,7 +222,7 @@ when data_bit =>
 
 
 -----------------------------------------------------------------
--- STOP BIT                                                    --
+-- STOP BIT
 -----------------------------------------------------------------
 when stop_bit =>
 	if (end_tempo = '1') then
@@ -251,3 +252,8 @@ when stop_bit =>
 end case;
 end process;
 end arch;
+
+	
+
+
+
