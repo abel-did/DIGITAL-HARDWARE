@@ -18,7 +18,7 @@ entity uart_rx is
         resetn  : in std_logic;
         data_out : out std_logic_vector(N-1 downto 0);
         rx       : in std_logic;
-        busy     : out std_logic
+        ready     : out std_logic
     );
 end uart_rx;
 --------------------------------------------------------------------------
@@ -64,7 +64,7 @@ architecture arch of uart_rx is
     end process;
 
     -- CTR TEMPO PART
-    --  MISE A 0 
+    -- MISE A 0 
     -- INCREMENTATION
     x_comp <= x-1 when mux_x_comp = '1' else
               xmid - 1;	
@@ -76,7 +76,7 @@ architecture arch of uart_rx is
     if resetn = '0' then 
             ctr_tempo <= 0; 
 	elsif rising_edge(clk) then
-  		case	cmd_tempo is
+  		case cmd_tempo is
 			when '0' => ctr_tempo <= 0;
 			when others => ctr_tempo <= ctr_tempo +1;
         end case;
@@ -84,7 +84,7 @@ architecture arch of uart_rx is
 	end process;
 
     -- DATA PART
-    -- CHARGEMENT // DE 0 1…1
+    -- CHARGEMENT // DE 1…1
     -- DECALAGE A DROITE AVEC REG_RX(0) EN MSB
     -- MEMORISATION 
     end_data <= not LSB;
