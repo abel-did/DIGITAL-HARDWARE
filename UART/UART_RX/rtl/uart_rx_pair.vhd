@@ -10,7 +10,7 @@ use ieee.math_real.all;
 entity uart_rx is
     generic (
         f_clk   : real := 100.0E6;
-        f_baud  : real := 96000;
+        f_baud  : real := 9600.0;
         N       : positive := 8
     );
     port(
@@ -18,12 +18,12 @@ entity uart_rx is
         resetn  : in std_logic;
         data_out : out std_logic_vector(N-1 downto 0);
         rx       : in std_logic;
-        ready    : out std_logic
+        ready     : out std_logic
     );
 end uart_rx;
 --------------------------------------------------------------------------
 architecture arch of uart_rx is
-	constant x 	: positive := integer(f_clk / f_baud);
+    constant x 	: positive := integer(f_clk / f_baud);
     constant xmid : positive := integer(x / 2);
 
     signal reg_rx : std_logic_vector(1 downto 0);	
@@ -32,16 +32,16 @@ architecture arch of uart_rx is
     signal cmd_tempo : std_logic;
     signal end_tempo : std_logic;	
     signal x_comp    : positive;
-    signal mux_x_comp: std_logic;
+    signal mux_x_comp : std_logic;
 
 	signal cmd_data : std_logic_vector(1 downto 0);
     signal ctr_data : unsigned (N-1 downto 0);
-    signal data     : unsigned (N-1 downto 0);
+    signal data: unsigned (N-1 downto 0);
     signal end_data : std_logic; 
-    signal LSB      : std_logic;
+    signal LSB : std_logic;
 
-    signal cmd_data_ok  : std_logic_vector (1 downto 0);
-    signal data_ok      : std_logic;
+    signal cmd_data_ok : std_logic_vector (1 downto 0);
+    signal data_ok : std_logic;
 
     type state is (idle, start_bit, data_bit, stop_bit);
     signal current_state    : state;
@@ -57,7 +57,7 @@ architecture arch of uart_rx is
     process (resetn, clk) is
     begin
     if resetn = '0' then
-            reg_rx <= (others <= '0');
+            reg_rx <= (others => '0');
     elsif rising_edge(clk) then
             reg_rx <= rx & reg_rx(1);
     end if;
@@ -84,7 +84,7 @@ architecture arch of uart_rx is
 	end process;
 
     -- DATA PART
-    -- CHARGEMENT // DE 1…1
+    -- CHARGEMENT // DE 1..1
     -- DECALAGE A DROITE AVEC REG_RX(0) EN MSB
     -- MEMORISATION 
     end_data <= not LSB;
@@ -96,8 +96,8 @@ architecture arch of uart_rx is
 		ctr_data <= (others => '0');
 	elsif rising_edge(clk) then
 		case cmd_data is
-			when "00" => (others => '1');
-			when "01" => reg_rx(0) & ctr_data (N-1 downto 1);
+			when "00" => ctr_data <= (others => '1');
+			when "01" => ctr_data <= reg_rx(0) & ctr_data (N-1 downto 1);
 			when others => ctr_data <= ctr_data;
         end case;
 	end if;
@@ -185,7 +185,7 @@ when start_bit =>
         cmd_data <= "00";
     end if;
         
-    cmd_data_ok <= "10"; - - Memorisation	
+    cmd_data_ok <= "10"; 	-- Memorisation	
 
     if end_tempo = '1' then
         cmd_tempo	<= '0';
@@ -252,8 +252,3 @@ when stop_bit =>
 end case;
 end process;
 end arch;
-
-	
-
-
-
