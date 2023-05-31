@@ -1,6 +1,6 @@
 # Digital Hardware
 
-Implementation of a UART transmitter in VHDL.
+Implementation of a UART transmitter and receiver in VHDL.
 
 ### Description
 
