@@ -17,7 +17,7 @@ This is an implementation of digital systems based on a material architecture. Y
 - Vivado
 - VHDL
 - Questasim
-- Basys 3
+- Artix 7
 
 ## Projects : 
 - Chenillard
